@@ -60,8 +60,8 @@ zokou({
         contextInfo: {
             externalAdReply: {
                 title: "EliahTech",
-                body: "𝐫𝐞𝐠𝐚𝐫𝐝𝐬 EliTechWiz-V4",
-                thumbnailUrl: "https://files.catbox.moe/hhwdau.jpeg",
+                body: "𝐫𝐞𝐠𝐚𝐫𝐝𝐬 Eliah Hango",
+                thumbnailUrl: "https://files.catbox.moe/vxxv26.jpeg",
                 sourceUrl: "https://whatsapp.com/channel/0029VaeEYF0BvvsZpaTPfL2s",
                 mediaType: 1,
                 renderLargerThumbnail: true
