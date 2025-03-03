@@ -49,7 +49,7 @@
         <td>2️⃣</td>
         <td><b>Get Pairing Code</b></td>
         <td>
-          <a href="put a link here">
+          <a href="https://eliah11-6bbf789058de.herokuapp.com/pair">
             <img src="https://img.shields.io/badge/Get_Code-blue?style=for-the-badge&logo=whatsapp" width="120px">
           </a>
         </td>
@@ -58,7 +58,7 @@
         <td>3️⃣</td>
         <td><b>Scan QR Code</b></td>
         <td>
-          <a href="put a link here">
+          <a href="https://eliah11-6bbf789058de.herokuapp.com/wasiqr">
             <img src="https://img.shields.io/badge/Scan_QR-purple?style=for-the-badge&logo=qrcode" width="120px">
           </a>
         </td>
