@@ -122,24 +122,24 @@ const temps = moment().format('HH:mm:ss');
 const date = moment().format('DD/MM/YYYY');
 
   let infoMsg =  `
-   *BMW MD IMPORTANT INFO* 
+   *ELITECHWIZ IMPORTANT INFO* 
 ❒───────────────────❒
 *GITHUB LINK*
-> https://github.com/ibrahimaitech/BMW-MD
+> https://github.com/Eliahhango/EliTechWiz-V4
 
 *WHATSAPP CHANNEL*
-> https://whatsapp.com/channel/0029VaZuGSxEawdxZK9CzM0Y
+> 
 
 *FOR MORE INFO TAP ON THE LINK BELOW*
-> https://github.com/IBRAHIM-TECH-AI/IBRAHIM-ADAMS-INFO⁠
+> https://github.com/Eliahhango
 ╭───────────────────❒
 │❒⁠⁠⁠⁠ *RAM* : ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
-│❒⁠⁠⁠⁠ *DEV* : *Ibrahim Adams*
+│❒⁠⁠⁠⁠ *DEV* : *Eliah  Hango*
 ⁠⁠⁠⁠╰───────────────────❒
   `;
     
 let menuMsg = `
-     𝑰𝑩𝑹𝑨𝑯𝑰𝑴 𝑨𝑫𝑨𝑴𝑺 𝑺𝑪𝑰𝑬𝑵𝑪𝑬
+     *ELIAH HANGO* 𝑺𝑪𝑰𝑬𝑵𝑪𝑬
 
 ❒────────────────────❒`;
 
