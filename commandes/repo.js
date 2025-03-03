@@ -35,19 +35,19 @@ const date = moment().format('DD/MM/YYYY');
 
   let infoMsg =  `
 ╭───────────────━⊷
-┊🌟 ELITECHWIZ 𝐌𝐃 𝐁𝐎𝐓 𝐑𝐄𝐏𝐎 𝐈𝐍𝐅𝐎 🌟
+┊🌟 *EliTechWiz-V4* 𝐁𝐎𝐓 𝐑𝐄𝐏𝐎 𝐈𝐍𝐅𝐎 🌟
 ╰───────────────━⊷
 ╭───────────────━⊷
 ╏🔗 𝗚𝗜𝗧𝗕𝗨𝗕 𝗟𝗜𝗡𝗞
-╏> https://github.com/Eliahhango/EliTechWiz-V4
+╏https://github.com/Eliahhango/EliTechWiz-V4
 ╏
 ╏🔗 𝗪𝗛𝗔𝗧𝗦𝗔𝗣𝗣 𝗖𝗛𝗔𝗡𝗡𝗘𝗟
-╏> https://whatsapp.com/channel/0029VaeEYF0BvvsZpaTPfL2s
+╏https://whatsapp.com/channel/0029VaeEYF0BvvsZpaTPfL2s
 ⁠⁠⁠⁠╰───────────────━⊷
    𝗙𝗢𝗟𝗟𝗢𝗪 𝗠𝗬 𝗖𝗛𝗔𝗡𝗡𝗘𝗟 𝗙𝗢𝗥 𝗠𝗢𝗥𝗘 𝗜𝗡𝗙𝗢
   `;    
 let menuMsg = `
-> 𝗣𝗢𝗪𝗘𝗥𝗘𝗗 𝗕𝗬 𝗖𝗥𝗜𝗦𝗦 𝗩𝗘𝗩𝗢`;
+> 𝗣𝗢𝗪𝗘𝗥𝗘𝗗 𝗕𝗬 *ELITECHWIZ* `;
 
    var lien = mybotpic();
 
