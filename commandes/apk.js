@@ -46,7 +46,7 @@ zokou({
         document: { url: appDetails.BK9.dllink },
         fileName: `${appDetails.BK9.name}.apk`,
         mimetype: "application/vnd.android.package-archive",
-        caption: "𝗖𝗥𝗜𝗦𝗦-𝗩𝗠𝗗"
+        caption: "*EliTechWiz-V4*"
       },
       { quoted: ms }
     );
