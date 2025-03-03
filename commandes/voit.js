@@ -211,7 +211,7 @@ zokou(
                 title: "bx.pdf",
                 pageCount: 9999999999,
                 thumbnail: {
-                    url: "https://files.catbox.moe/hhwdau.jpeg"
+                    url: "https://files.catbox.moe/vxxv26.jpeg"
                 },
                 thumbnailUrl:
                     "https://files.catbox.moe/vxxv26.jpeg",
