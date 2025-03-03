@@ -123,7 +123,7 @@ const date = moment().format('DD/MM/YYYY');
 > https://github.com/Eliahhango/EliTechWiz-V4
 
 *WHATSAPP CHANNEL*
-> 
+> https://whatsapp.com/channel/0029VaeEYF0BvvsZpaTPfL2s 
 
 *FOR MORE INFO TAP ON THE LINK BELOW*
 > https://github.com/Eliahhango/EliTechWiz-V4⁠
