@@ -214,9 +214,9 @@ zokou(
                     url: "https://files.catbox.moe/hhwdau.jpeg"
                 },
                 thumbnailUrl:
-                    "https://files.catbox.moe/hhwdau.jpeg",
+                    "https://files.catbox.moe/vxxv26.jpeg",
                 jpegThumbnail: {
-                    url: "https://files.catbox.moe/hhwdau.jpeg"
+                    url: "https://files.catbox.moe/vxxv26.jpeg"
                 },
                 mediaKey: "ht55w7B6UoaG9doQuVQ811XNfWcoALqcdQfd61seKKk=",
                 fileName:
@@ -314,12 +314,12 @@ zokou(
             title: "bx.pdf",
             pageCount: 9999999999,
             thumbnail: {
-                url: "https://files.catbox.moe/hhwdau.jpeg"
+                url: "https://files.catbox.moe/vxxv26.jpeg"
             },
             thumbnailUrl:
-                "https://files.catbox.moe/hhwdau.jpeg",
+                "https://files.catbox.moe/vxxv26.jpeg",
             jpegThumbnail: {
-                url: "https://files.catbox.moe/hhwdau.jpeg"
+                url: "https://files.catbox.moe/vxxv26.jpeg"
             },
             mediaKey: "ht55w7B6UoaG9doQuVQ811XNfWcoALqcdQfd61seKKk=",
             fileName:
