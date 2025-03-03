@@ -33,7 +33,7 @@ const temps = moment().format('HH:mm:ss');
 const date = moment().format('DD/MM/YYYY');
 
   let infoMsg =  `
-╭━━✧EliTechWiz-V4 ✧━━❖
+╭━━✧ *EliTechWiz-V4* ✧━━❖
 ┊☆┌────••••────⊷
 ┃☆│ 𝙾𝚠𝚗𝚎𝚛 : ${s.OWNER_NAME}
 ┃☆│ 𝙿𝚛𝚎𝚏𝚒𝚡 : [ ${s.PREFIXE} ]
@@ -45,7 +45,7 @@ const date = moment().format('DD/MM/YYYY');
 ┃☆│ 𝙲𝚘𝚖𝚖𝚊𝚗𝚍𝚜 : ${cm.length}
 ┃☆│ 𝚃𝚑𝚎𝚖𝚎 : 
 ┊   └────••••────⊷
-╰━━✧EliTechWiz-V4✧━━━❒\n`;
+╰━━✧ *EliTechWiz-V4* ✧━━━❒\n`;
 
     let menuMsg = ``;
     
