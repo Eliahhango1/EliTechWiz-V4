@@ -48,7 +48,7 @@ const date = moment().format('DD/MM/YYYY');
  `;
     
 let menuMsg = `
-> POWERED BY EliTechWiz-V4 
+> POWERED BY ELIAH HANGO 
 `;
 
    var lien = mybotpic();
@@ -120,13 +120,13 @@ const date = moment().format('DD/MM/YYYY');
    *BMW MD IMPORTANT INFO* 
 ❒───────────────────❒
 *GITHUB LINK*
-> https://github.com/ibrahimaitech/BMW-MD
+> https://github.com/Eliahhango/EliTechWiz-V4
 
 *WHATSAPP CHANNEL*
-> https://whatsapp.com/channel/0029VaZuGSxEawdxZK9CzM0Y
+> 
 
 *FOR MORE INFO TAP ON THE LINK BELOW*
-> https://github.com/IBRAHIM-TECH-AI/IBRAHIM-ADAMS-INFO⁠
+> https://github.com/Eliahhango/EliTechWiz-V4⁠
 ╭───────────────────❒
 │❒⁠⁠⁠⁠ *RAM* : ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
 │❒⁠⁠⁠⁠ *DEV* : *Eliah Hango*
