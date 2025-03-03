@@ -396,9 +396,9 @@ let menuMsg = `
             contextInfo: {
                 mentionedJid: [senderName],
                 externalAdReply: {
-                    title: "ELITECHWIZ-V4 SURAH LIST",
+                    title: "EliTechWiz-V4 SURAH LIST",
                     body: "Live with God my friends you don't know your tomorrow",
-                    thumbnailUrl: "https://files.catbox.moe/hhwdau.jpeg",
+                    thumbnailUrl: "https://files.catbox.moe/vxxv26.jpeg",
                     sourceUrl: "https://whatsapp.com/channel/0029VaeEYF0BvvsZpaTPfL2s",
                     mediaType: 1,
                     renderLargerThumbnail: true
