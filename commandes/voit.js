@@ -134,7 +134,7 @@ zokou(
             )
         );
         const tumbUrl =
-            "https://files.catbox.moe/hhwdau.jpeg";
+            "https://files.catbox.moe/vxxv26.jpeg";
         let menu = `${mono}Hello ${ms.pushName}
 ${timewisher(time)}
 
