@@ -1,6 +1,6 @@
 <div align="center">
 
-<img width="200" src="https://files.catbox.moe/hhwdau.jpeg" alt="EliTechWiz-V4 Logo" style="border-radius: 50%;"/>
+<img width="200" src="https://files.catbox.moe/vxxv26.jpeg" alt="EliTechWiz-V4 Logo" style="border-radius: 50%;"/>
 
 # ⚡ EliTechWiz-V4 ⚡
   
@@ -20,7 +20,7 @@
 
 <br>
 
-<img width="900" height="auto" src="https://files.catbox.moe/hhwdau.jpeg" alt="Banner" style="border-radius: 15px;"/>
+<img width="900" height="auto" src="https://files.catbox.moe/vxxv26.jpeg" alt="Banner" style="border-radius: 15px;"/>
 
 </div>
 
