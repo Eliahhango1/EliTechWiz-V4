@@ -45,7 +45,7 @@ const date = moment().format('DD/MM/YYYY');
 \n
   `;
     let menuMsg = `
-> 𝗣𝗢𝗪𝗘𝗥𝗘𝗗 𝗕𝗬 𝗖𝗥𝗜𝗦𝗦 𝗩𝗘𝗩𝗢 `;
+> 𝗣𝗢𝗪𝗘𝗥𝗘𝗗 𝗕𝗬 *ELITECHWIZ* `;
 
    var lien = mybotpic();
 
