@@ -71,9 +71,9 @@ else {
 }
 
     } else {
-        if(!superUser) { repondre("ELITECHWIZ-V4 BOT IS ALiVE ALL THE TIME👨‍💻") ; return};
+        if(!superUser) { repondre(" *EliTechWiz-V4 BOT IS ACTIVE AND RUNNING* 👨‍💻") ; return};
 
-      await   repondre("ELITECHWIZ-V4 BOT IS ALiVE ALL THE TIME👨‍💻");
+      await   repondre(" *EliTechWiz-V4 BOT IS ACTIVE AND RUNNING* 👨‍💻");
      }
  } else {
 
