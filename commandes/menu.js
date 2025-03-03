@@ -63,7 +63,7 @@ const date = moment().format('DD/MM/YYYY');
     }
     
     menuMsg += `
-> @𝐌𝐀𝐃𝐄 𝐁𝐘 *Eliah Hango*
+> 𝐌𝐀𝐃𝐄 𝐁𝐘 *Eliah Hango*
 `;
 
    var lien = mybotpic();
