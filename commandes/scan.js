@@ -35,16 +35,17 @@ const temps = moment().format('HH:mm:ss');
 const date = moment().format('DD/MM/YYYY');
 
   let infoMsg =  `
- *Tap on the link to get session 👇*
-
- *PAIRING CODE*
-  https://ELITECHWIZ-BOT-x15p.onrender.com/
-
- *SCAN QR CODE*
-  https://ELITECHWIZ-bot-qr.onrender.com/qr
- 
- *BOT REPO*
-  https://github.com/Eliahhango/EliTechWiz-V4
+*🔗 ELITECHWIZ BOT LINKS*
+╭───────────────────────
+│ *1️⃣ PAIRING CODE*
+│ https://eliah-7b9540c853b5.herokuapp.com/pair
+│
+│ *2️⃣ SCAN QR CODE*
+│ https://eliah-7b9540c853b5.herokuapp.com/eliahqr
+│
+│ *3️⃣ GITHUB REPO*
+│ https://github.com/Eliahhango/EliTechWiz-V4
+╰───────────────────────
  `;
     
 let menuMsg = `
