@@ -37,33 +37,47 @@ async (origineMessage, zk, commandeOptions) => {
 
 zokou({
   nomCom: "google",
-  categorie: "Search"
+  categorie: "Search",
+  reaction: "🔍"
 }, async (dest, zk, commandeOptions) => {
   const { arg, repondre } = commandeOptions;
   
-  if (!arg[0] || arg === "") {
-    repondre("Give me a query.\n*Example: .google What is a bot.*");
+  if (!arg || arg.length === 0) {
+    repondre("Please provide a search query.\n*Example: .google What is a bot*");
     return;
   }
 
-  const google = require('google-it');
   try {
-    const results = await google({ query: arg.join(" ") });
-    let msg = `Google search for : ${arg}\n\n`;
+    const googleIt = require('google-it');
+    const searchQuery = arg.join(" ");
+    
+    const results = await googleIt({
+      query: searchQuery,
+      limit: 8,  // Limit to 8 results for better readability
+      disableConsole: true // Prevent console logs
+    });
 
-    for (let result of results) {
-      msg += `➣ Title : ${result.title}\n`;
-      msg += `➣ Description : ${result.snippet}\n`;
-      msg += `➣ Link : ${result.link}\n\n────────────────────────\n\n`;
+    if (!results || results.length === 0) {
+      repondre("No results found for your search query.");
+      return;
+    }
+
+    let msg = `🔍 *Google Search Results*\n\n`;
+    msg += `*Query:* ${searchQuery}\n\n`;
+
+    for (let i = 0; i < results.length; i++) {
+      const result = results[i];
+      msg += `*${i + 1}. ${result.title}*\n`;
+      msg += `${result.snippet}\n`;
+      msg += `🔗 ${result.link}\n\n`;
     }
     
-   // const trdmsg = await traduire(msg,{to : 'fr'})
     repondre(msg);
   } catch (error) {
-    repondre("An error occurred during Google search.");
+    console.error('Google search error:', error);
+    repondre("❌ An error occurred during the Google search. Please make sure the query is valid and try again.");
   }
 });
-
 zokou({
   nomCom: "imdb",
   categorie: "Search"
