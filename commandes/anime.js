@@ -882,3 +882,159 @@ zk.ev.on('group-participants.update', async (anu) => {
   }
 });
 
+// Maps to store anti-badword settings and user warnings
+const antiBadwordEnabled = new Map();
+const badWordWarnings = new Map();
+
+// Function to check text for inappropriate content using AI
+async function checkInappropriateContent(text) {
+  try {
+    const response = await axios.post(
+      'https://api.openai.com/v1/moderations',
+      { input: text },
+      {
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    const result = response.data.results[0];
+    return {
+      inappropriate: result.flagged,
+      categories: Object.entries(result.categories)
+        .filter(([_, value]) => value)
+        .map(([key, _]) => key)
+    };
+  } catch (error) {
+    console.error('Error checking content:', error);
+    return { inappropriate: false, categories: [] };
+  }
+}
+
+zokou({
+  nomCom: "antibadword",
+  categorie: "Group",
+  reaction: "🚫"
+}, async (dest, zk, commandeOptions) => {
+  const { repondre, arg, ms } = commandeOptions;
+
+  // Check if the command is used in a group
+  if (!dest.endsWith('@g.us')) {
+    repondre("❌ This command can only be used in groups.");
+    return;
+  }
+
+  // Check if user is admin
+  const groupAdmins = await zk.groupAdmin(dest);
+  const sender = ms.key.participant || ms.key.remoteJid;
+  
+  if (!groupAdmins.includes(sender)) {
+    repondre("❌ This command can only be used by group admins.");
+    return;
+  }
+
+  if (!arg[0]) {
+    repondre("Please specify 'on' or 'off' to enable/disable anti-badword feature.");
+    return;
+  }
+
+  const action = arg[0].toLowerCase();
+  const chatId = dest;
+
+  if (action === 'on') {
+    antiBadwordEnabled.set(chatId, true);
+    // Clear any existing warnings when enabling
+    clearBadWordWarnings(chatId);
+    repondre("✅ Anti-badword feature has been enabled. Inappropriate messages will be detected and removed.");
+  } else if (action === 'off') {
+    antiBadwordEnabled.delete(chatId);
+    // Clear all warnings for this group
+    clearBadWordWarnings(chatId);
+    repondre("❌ Anti-badword feature has been disabled.");
+  } else {
+    repondre("Invalid option. Please use 'on' or 'off'.");
+  }
+});
+
+// Function to clear bad word warnings for a group
+function clearBadWordWarnings(groupId) {
+  for (const [key, value] of badWordWarnings.entries()) {
+    if (key.startsWith(groupId)) {
+      badWordWarnings.delete(key);
+    }
+  }
+}
+
+// Function to get user warning key
+function getWarningKey(groupId, userId) {
+  return `${groupId}:${userId}`;
+}
+
+// Message handler for detecting bad words
+zk.ev.on('messages.upsert', async ({ messages }) => {
+  for (const message of messages) {
+    const chatId = message.key.remoteJid;
+    
+    // Check if this is a group and anti-badword is enabled
+    if (chatId?.endsWith('@g.us') && antiBadwordEnabled.has(chatId)) {
+      const messageContent = message.message?.conversation || 
+                           message.message?.extendedTextMessage?.text ||
+                           message.message?.imageMessage?.caption || '';
+      
+      if (!messageContent) continue;
+
+      // Check content for inappropriate language
+      const check = await checkInappropriateContent(messageContent);
+      
+      if (check.inappropriate) {
+        const sender = message.key.participant || message.key.remoteJid;
+        const warningKey = getWarningKey(chatId, sender);
+        
+        try {
+          // Delete the inappropriate message
+          await zk.sendMessage(chatId, { delete: message.key });
+          
+          // Get or initialize warning count
+          const warnings = badWordWarnings.get(warningKey) || 0;
+          badWordWarnings.set(warningKey, warnings + 1);
+          
+          const senderName = '@' + sender.split('@')[0];
+          const categories = check.categories.map(cat => 
+            cat.replace(/_/g, ' ').toLowerCase()
+          ).join(', ');
+          
+          if (warnings >= 2) {
+            // Third offense: Remove user from group
+            await zk.groupParticipantsUpdate(chatId, [sender], "remove");
+            
+            await zk.sendMessage(chatId, {
+              text: `🛡️ *Anti-Badword Protection*\n\n` +
+                   `• User: ${senderName}\n` +
+                   `• Action: Removed from group\n` +
+                   `• Reason: Multiple violations of using inappropriate language\n\n` +
+                   `_This group maintains a family-friendly environment._`,
+              mentions: [sender]
+            });
+          } else {
+            // First or second offense: Warning
+            await zk.sendMessage(chatId, {
+              text: `⚠️ *Inappropriate Language Warning*\n\n` +
+                   `• User: ${senderName}\n` +
+                   `• Action: Message Deleted\n` +
+                   `• Warning: ${warnings + 1}/3\n` +
+                   `• Type: ${categories}\n\n` +
+                   `_Please maintain appropriate language in this group.\n` +
+                   `Multiple violations will result in removal._`,
+              mentions: [sender]
+            });
+          }
+        } catch (error) {
+          console.error('Error handling inappropriate message:', error);
+        }
+      }
+    }
+  }
+});
+
