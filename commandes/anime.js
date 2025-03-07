@@ -377,3 +377,508 @@ zk.ev.on('messages.delete', async (message) => {
   }
 });
 
+// Map to store anti-sticker settings
+const antiStickerEnabled = new Map();
+
+zokou({
+  nomCom: "antisticker",
+  categorie: "Group",
+  reaction: "🚫"
+}, async (dest, zk, commandeOptions) => {
+  const { repondre, arg, ms, groupMeta } = commandeOptions;
+
+  // Check if the command is used in a group
+  if (!dest.endsWith('@g.us')) {
+    repondre("❌ This command can only be used in groups.");
+    return;
+  }
+
+  // Check if user is admin
+  const groupAdmins = await zk.groupAdmin(dest);
+  const sender = ms.key.participant || ms.key.remoteJid;
+  
+  if (!groupAdmins.includes(sender)) {
+    repondre("❌ This command can only be used by group admins.");
+    return;
+  }
+
+  if (!arg[0]) {
+    repondre("Please specify 'on' or 'off' to enable/disable anti-sticker feature.");
+    return;
+  }
+
+  const action = arg[0].toLowerCase();
+  const chatId = dest;
+
+  if (action === 'on') {
+    antiStickerEnabled.set(chatId, true);
+    repondre("✅ Anti-sticker feature has been enabled. All stickers will be automatically removed.");
+  } else if (action === 'off') {
+    antiStickerEnabled.delete(chatId);
+    repondre("❌ Anti-sticker feature has been disabled. Stickers are now allowed.");
+  } else {
+    repondre("Invalid option. Please use 'on' or 'off'.");
+  }
+});
+
+// Message handler for detecting stickers
+zk.ev.on('messages.upsert', async ({ messages }) => {
+  for (const message of messages) {
+    const chatId = message.key.remoteJid;
+    
+    // Check if this is a group and anti-sticker is enabled
+    if (chatId?.endsWith('@g.us') && antiStickerEnabled.has(chatId)) {
+      // Check if the message contains a sticker
+      if (message.message?.stickerMessage) {
+        try {
+          // Delete the sticker message
+          await zk.sendMessage(chatId, { delete: message.key });
+          
+          // Get sender's name/number
+          const sender = message.key.participant || message.key.remoteJid;
+          const senderName = '@' + sender.split('@')[0];
+          
+          // Send warning message
+          await zk.sendMessage(chatId, {
+            text: `⚠️ *Anti-Sticker Alert*\n\n• User: ${senderName}\n• Action: Sticker Removed\n\n_Stickers are not allowed in this group._`,
+            mentions: [sender]
+          });
+        } catch (error) {
+          console.error('Error handling sticker:', error);
+        }
+      }
+    }
+  }
+});
+
+// Maps to store anti-spam settings and user message history
+const antiSpamEnabled = new Map();
+const userMessageHistory = new Map();
+const userWarnings = new Map();
+
+zokou({
+  nomCom: "antispam",
+  categorie: "Group",
+  reaction: "🛡️"
+}, async (dest, zk, commandeOptions) => {
+  const { repondre, arg, ms } = commandeOptions;
+
+  // Check if the command is used in a group
+  if (!dest.endsWith('@g.us')) {
+    repondre("❌ This command can only be used in groups.");
+    return;
+  }
+
+  // Check if user is admin
+  const groupAdmins = await zk.groupAdmin(dest);
+  const sender = ms.key.participant || ms.key.remoteJid;
+  
+  if (!groupAdmins.includes(sender)) {
+    repondre("❌ This command can only be used by group admins.");
+    return;
+  }
+
+  if (!arg[0]) {
+    repondre("Please specify 'on' or 'off' to enable/disable anti-spam feature.");
+    return;
+  }
+
+  const action = arg[0].toLowerCase();
+  const chatId = dest;
+
+  if (action === 'on') {
+    antiSpamEnabled.set(chatId, true);
+    // Clear any existing history when enabling
+    clearGroupSpamHistory(chatId);
+    repondre("✅ Anti-spam feature has been enabled. Repeated messages will be detected and action will be taken.");
+  } else if (action === 'off') {
+    antiSpamEnabled.delete(chatId);
+    // Clear all spam history for this group
+    clearGroupSpamHistory(chatId);
+    repondre("❌ Anti-spam feature has been disabled.");
+  } else {
+    repondre("Invalid option. Please use 'on' or 'off'.");
+  }
+});
+
+// Function to clear spam history for a group
+function clearGroupSpamHistory(groupId) {
+  // Clear message history
+  for (const [key, value] of userMessageHistory.entries()) {
+    if (key.startsWith(groupId)) {
+      userMessageHistory.delete(key);
+    }
+  }
+  // Clear warning history
+  for (const [key, value] of userWarnings.entries()) {
+    if (key.startsWith(groupId)) {
+      userWarnings.delete(key);
+    }
+  }
+}
+
+// Function to get user key
+function getUserKey(groupId, userId) {
+  return `${groupId}:${userId}`;
+}
+
+// Message handler for detecting spam
+zk.ev.on('messages.upsert', async ({ messages }) => {
+  for (const message of messages) {
+    const chatId = message.key.remoteJid;
+    
+    // Check if this is a group and anti-spam is enabled
+    if (chatId?.endsWith('@g.us') && antiSpamEnabled.has(chatId)) {
+      const sender = message.key.participant || message.key.remoteJid;
+      const messageContent = message.message?.conversation || 
+                           message.message?.extendedTextMessage?.text ||
+                           message.message?.imageMessage?.caption ||
+                           'multimedia_message'; // For non-text messages
+      
+      if (!messageContent) continue;
+
+      const userKey = getUserKey(chatId, sender);
+      
+      // Get or initialize user's message history
+      if (!userMessageHistory.has(userKey)) {
+        userMessageHistory.set(userKey, {
+          lastMessage: messageContent,
+          count: 1,
+          timestamp: Date.now(),
+          messages: [message.key]
+        });
+      } else {
+        const history = userMessageHistory.get(userKey);
+        
+        // Reset count if it's been more than 30 seconds since last message
+        if (Date.now() - history.timestamp > 30000) {
+          history.count = 1;
+          history.messages = [message.key];
+        } else if (history.lastMessage === messageContent) {
+          // Increment count for same message
+          history.count++;
+          history.messages.push(message.key);
+        } else {
+          // Different message, reset count
+          history.count = 1;
+          history.messages = [message.key];
+        }
+        
+        history.lastMessage = messageContent;
+        history.timestamp = Date.now();
+        
+        // Check if spam threshold is reached (4 or more same messages)
+        if (history.count >= 4) {
+          try {
+            // Delete all spam messages
+            for (const msgKey of history.messages) {
+              await zk.sendMessage(chatId, { delete: msgKey });
+            }
+            
+            // Get or initialize warning count
+            const warnings = userWarnings.get(userKey) || 0;
+            userWarnings.set(userKey, warnings + 1);
+            
+            const senderName = '@' + sender.split('@')[0];
+            
+            if (warnings >= 1) {
+              // Second offense: Remove user from group
+              await zk.groupParticipantsUpdate(chatId, [sender], "remove");
+              
+              await zk.sendMessage(chatId, {
+                text: `🛡️ *Anti-Spam Protection*\n\n• User: ${senderName}\n• Action: Removed from group\n• Reason: Multiple spam violations\n\n_Spamming is not allowed in this group._`,
+                mentions: [sender]
+              });
+            } else {
+              // First offense: Warning
+              await zk.sendMessage(chatId, {
+                text: `⚠️ *Anti-Spam Warning*\n\n• User: ${senderName}\n• Action: Messages Deleted\n• Warning: ${warnings + 1}/2\n\n_Continuing to spam will result in removal from the group._`,
+                mentions: [sender]
+              });
+            }
+            
+            // Reset message history
+            history.count = 0;
+            history.messages = [];
+            
+          } catch (error) {
+            console.error('Error handling spam:', error);
+          }
+        }
+      }
+    }
+  }
+});
+
+// Maps to store anti-spam settings and user message history
+const antiSpamEnabled = new Map();
+const userMessageHistory = new Map();
+const userWarnings = new Map();
+
+zokou({
+  nomCom: "antispam",
+  categorie: "Group",
+  reaction: "🛡️"
+}, async (dest, zk, commandeOptions) => {
+  const { repondre, arg, ms } = commandeOptions;
+
+  // Check if the command is used in a group
+  if (!dest.endsWith('@g.us')) {
+    repondre("❌ This command can only be used in groups.");
+    return;
+  }
+
+  // Check if user is admin
+  const groupAdmins = await zk.groupAdmin(dest);
+  const sender = ms.key.participant || ms.key.remoteJid;
+  
+  if (!groupAdmins.includes(sender)) {
+    repondre("❌ This command can only be used by group admins.");
+    return;
+  }
+
+  if (!arg[0]) {
+    repondre("Please specify 'on' or 'off' to enable/disable anti-spam feature.");
+    return;
+  }
+
+  const action = arg[0].toLowerCase();
+  const chatId = dest;
+
+  if (action === 'on') {
+    antiSpamEnabled.set(chatId, true);
+    // Clear any existing history when enabling
+    clearGroupSpamHistory(chatId);
+    repondre("✅ Anti-spam feature has been enabled. Repeated messages will be detected and action will be taken.");
+  } else if (action === 'off') {
+    antiSpamEnabled.delete(chatId);
+    // Clear all spam history for this group
+    clearGroupSpamHistory(chatId);
+    repondre("❌ Anti-spam feature has been disabled.");
+  } else {
+    repondre("Invalid option. Please use 'on' or 'off'.");
+  }
+});
+
+// Function to clear spam history for a group
+function clearGroupSpamHistory(groupId) {
+  // Clear message history
+  for (const [key, value] of userMessageHistory.entries()) {
+    if (key.startsWith(groupId)) {
+      userMessageHistory.delete(key);
+    }
+  }
+  // Clear warning history
+  for (const [key, value] of userWarnings.entries()) {
+    if (key.startsWith(groupId)) {
+      userWarnings.delete(key);
+    }
+  }
+}
+
+// Function to get user key
+function getUserKey(groupId, userId) {
+  return `${groupId}:${userId}`;
+}
+
+// Message handler for detecting spam
+zk.ev.on('messages.upsert', async ({ messages }) => {
+  for (const message of messages) {
+    const chatId = message.key.remoteJid;
+    
+    // Check if this is a group and anti-spam is enabled
+    if (chatId?.endsWith('@g.us') && antiSpamEnabled.has(chatId)) {
+      const sender = message.key.participant || message.key.remoteJid;
+      const messageContent = message.message?.conversation || 
+                           message.message?.extendedTextMessage?.text ||
+                           message.message?.imageMessage?.caption ||
+                           'multimedia_message'; // For non-text messages
+      
+      if (!messageContent) continue;
+
+      const userKey = getUserKey(chatId, sender);
+      
+      // Get or initialize user's message history
+      if (!userMessageHistory.has(userKey)) {
+        userMessageHistory.set(userKey, {
+          lastMessage: messageContent,
+          count: 1,
+          timestamp: Date.now(),
+          messages: [message.key]
+        });
+      } else {
+        const history = userMessageHistory.get(userKey);
+        
+        // Reset count if it's been more than 30 seconds since last message
+        if (Date.now() - history.timestamp > 30000) {
+          history.count = 1;
+          history.messages = [message.key];
+        } else if (history.lastMessage === messageContent) {
+          // Increment count for same message
+          history.count++;
+          history.messages.push(message.key);
+        } else {
+          // Different message, reset count
+          history.count = 1;
+          history.messages = [message.key];
+        }
+        
+        history.lastMessage = messageContent;
+        history.timestamp = Date.now();
+        
+        // Check if spam threshold is reached (4 or more same messages)
+        if (history.count >= 4) {
+          try {
+            // Delete all spam messages
+            for (const msgKey of history.messages) {
+              await zk.sendMessage(chatId, { delete: msgKey });
+            }
+            
+            // Get or initialize warning count
+            const warnings = userWarnings.get(userKey) || 0;
+            userWarnings.set(userKey, warnings + 1);
+            
+            const senderName = '@' + sender.split('@')[0];
+            
+            if (warnings >= 1) {
+              // Second offense: Remove user from group
+              await zk.groupParticipantsUpdate(chatId, [sender], "remove");
+              
+              await zk.sendMessage(chatId, {
+                text: `🛡️ *Anti-Spam Protection*\n\n• User: ${senderName}\n• Action: Removed from group\n• Reason: Multiple spam violations\n\n_Spamming is not allowed in this group._`,
+                mentions: [sender]
+              });
+            } else {
+              // First offense: Warning
+              await zk.sendMessage(chatId, {
+                text: `⚠️ *Anti-Spam Warning*\n\n• User: ${senderName}\n• Action: Messages Deleted\n• Warning: ${warnings + 1}/2\n\n_Continuing to spam will result in removal from the group._`,
+                mentions: [sender]
+              });
+            }
+            
+            // Reset message history
+            history.count = 0;
+            history.messages = [];
+            
+          } catch (error) {
+            console.error('Error handling spam:', error);
+          }
+        }
+      }
+    }
+  }
+});
+
+// Map to store welcome settings
+const welcomeEnabled = new Map();
+
+// Array of welcome quotes
+const welcomeQuotes = [
+  "Every new friend is a new adventure... Welcome to our family! 🌟",
+  "A warm welcome to you! May you feel at home and make wonderful memories here. 🏡",
+  "Welcome aboard! We're excited to have you join our amazing community. 🚀",
+  "A new member means new ideas and new energy! Welcome to the group! ✨",
+  "Welcome! Your presence makes our group even more special. 🌈",
+  "Glad to have you here! Let's create awesome moments together. 🎉",
+  "Welcome to our wonderful community! We hope you'll enjoy your stay. 🌺",
+  "A new star has joined our galaxy! Welcome and shine bright! ⭐",
+  "Welcome! We're happy you're here to share this journey with us. 🌅",
+  "A warm welcome and lots of good wishes on becoming part of our group. 🎊"
+];
+
+zokou({
+  nomCom: "welcome",
+  categorie: "Group",
+  reaction: "👋"
+}, async (dest, zk, commandeOptions) => {
+  const { repondre, arg, ms } = commandeOptions;
+
+  // Check if the command is used in a group
+  if (!dest.endsWith('@g.us')) {
+    repondre("❌ This command can only be used in groups.");
+    return;
+  }
+
+  // Check if user is admin
+  const groupAdmins = await zk.groupAdmin(dest);
+  const sender = ms.key.participant || ms.key.remoteJid;
+  
+  if (!groupAdmins.includes(sender)) {
+    repondre("❌ This command can only be used by group admins.");
+    return;
+  }
+
+  if (!arg[0]) {
+    repondre("Please specify 'on' or 'off' to enable/disable welcome messages.");
+    return;
+  }
+
+  const action = arg[0].toLowerCase();
+  const chatId = dest;
+
+  if (action === 'on') {
+    welcomeEnabled.set(chatId, true);
+    repondre("✅ Welcome messages have been enabled for this group.");
+  } else if (action === 'off') {
+    welcomeEnabled.delete(chatId);
+    repondre("❌ Welcome messages have been disabled for this group.");
+  } else {
+    repondre("Invalid option. Please use 'on' or 'off'.");
+  }
+});
+
+// Function to get random welcome quote
+function getRandomQuote() {
+  return welcomeQuotes[Math.floor(Math.random() * welcomeQuotes.length)];
+}
+
+// Group event handler for welcome messages
+zk.ev.on('group-participants.update', async (anu) => {
+  try {
+    const chatId = anu.id;
+    
+    // Only proceed if welcome messages are enabled for this group
+    if (welcomeEnabled.has(chatId) && anu.action === 'add') {
+      // Get group metadata
+      const groupMetadata = await zk.groupMetadata(chatId);
+      const groupName = groupMetadata.subject;
+
+      for (const num of anu.participants) {
+        try {
+          // Get profile picture
+          let ppUrl;
+          try {
+            ppUrl = await zk.profilePictureUrl(num, 'image');
+          } catch {
+            // Use default profile picture if unable to get user's profile picture
+            ppUrl = 'https://i.ibb.co/4m0zj9r/welcome-default.png';
+          }
+
+          // Get random welcome quote
+          const quote = getRandomQuote();
+
+          // Create welcome message
+          const welcomeText = `*Welcome to ${groupName}!* 👋\n\n` +
+                            `@${num.split('@')[0]}\n\n` +
+                            `${quote}\n\n` +
+                            `🌟 Group Members: ${groupMetadata.participants.length}\n` +
+                            `📅 Joined: ${new Date().toLocaleDateString()}\n\n` +
+                            `_We hope you'll enjoy your time here!_`;
+
+          // Send welcome message with profile picture
+          await zk.sendMessage(chatId, {
+            image: { url: ppUrl },
+            caption: welcomeText,
+            mentions: [num]
+          });
+
+        } catch (error) {
+          console.error('Error sending welcome message:', error);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error in group-participants event:', error);
+  }
+});
+
